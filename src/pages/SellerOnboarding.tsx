@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { VoiceInput } from '@/components/VoiceInput';
-import { IconArrowLeft, IconUpload, IconCheck } from '@tabler/icons-react';
+import { ImageAnalyzer } from '@/components/ImageAnalyzer';
+import { IconArrowLeft, IconUpload, IconCheck, IconSparkles } from '@tabler/icons-react';
 import { toast } from '@/components/ui/use-toast';
 import craftBackground from '@/assets/craft-background.jpg';
 
@@ -23,6 +24,8 @@ const SellerOnboarding = () => {
   
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [aiGeneratedDescription, setAiGeneratedDescription] = useState('');
+  const [imageAnalysis, setImageAnalysis] = useState('');
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
 
   const handleVoiceTranscript = (transcript: string) => {
     setVoiceTranscript(transcript);
@@ -37,9 +40,25 @@ const SellerOnboarding = () => {
     setAiGeneratedDescription(description);
     setFormData(prev => ({ ...prev, description }));
     toast({
-      title: "AI Story Generated!",
+      title: "AI Story Generated!",  
       description: "Your product description has been created with cultural context",
     });
+  };
+
+  const handleImageAnalysis = (analysis: string) => {
+    setImageAnalysis(analysis);
+    toast({
+      title: "Image Analysis Complete!",
+      description: "AI has analyzed your product photo and detected craft details",
+    });
+  };
+
+  const handleImageUpload = (file: File) => {
+    setUploadedImage(file);
+    setFormData(prev => ({ 
+      ...prev, 
+      photos: [file, ...prev.photos.slice(0, 4)]
+    }));
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -133,9 +152,21 @@ const SellerOnboarding = () => {
               <VoiceInput 
                 onTranscript={handleVoiceTranscript}
                 onGeneratedDescription={handleAIDescription}
+                onImageAnalysis={handleImageAnalysis}
+                imageFile={uploadedImage}
                 language="hi-IN"
                 className="mb-6"
               />
+
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <IconSparkles className="h-5 w-5 text-blue-600" />
+                  <h4 className="font-medium text-blue-900">AI-Powered Listing</h4>
+                </div>
+                <p className="text-sm text-blue-700">
+                  Our AI will help you with voice input, image analysis, and generating compelling product stories that connect with buyers.
+                </p>
+              </div>
 
               <div className="space-y-4">
                 <div>
@@ -188,26 +219,30 @@ const SellerOnboarding = () => {
               </h2>
 
               <div className="space-y-6">
-                {/* Photo Upload */}
+                {/* AI-Powered Photo Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Product Photos (Up to 5)
+                    Product Photos with AI Analysis
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-samhita-gold transition-colors">
+                  <ImageAnalyzer 
+                    onImageUpload={handleImageUpload}
+                    onAnalysisComplete={handleImageAnalysis}
+                    className="mb-4"
+                  />
+                  
+                  {/* Additional Photos */}
+                  <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-samhita-gold transition-colors">
                     <input
                       type="file"
                       multiple
                       accept="image/*"
                       onChange={handlePhotoUpload}
                       className="hidden"
-                      id="photo-upload"
+                      id="additional-photos"
                     />
-                    <label htmlFor="photo-upload" className="cursor-pointer">
-                      <IconUpload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">Tap to add photos</p>
-                      <p className="text-sm text-gray-500 mt-1">
-                        {formData.photos.length} of 5 photos selected
-                      </p>
+                    <label htmlFor="additional-photos" className="cursor-pointer">
+                      <IconUpload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">Add more photos ({formData.photos.length}/5)</p>
                     </label>
                   </div>
                 </div>
@@ -290,9 +325,18 @@ const SellerOnboarding = () => {
 
                 {formData.description && (
                   <div className="border-b border-gray-200 pb-4">
-                    <h4 className="font-medium text-gray-700 mb-2">Description:</h4>
+                    <h4 className="font-medium text-gray-700 mb-2">AI-Generated Description:</h4>
                     <p className="text-sm text-gray-600 leading-relaxed">
                       {formData.description.slice(0, 200)}...
+                    </p>
+                  </div>
+                )}
+
+                {imageAnalysis && (
+                  <div className="border-b border-gray-200 pb-4">
+                    <h4 className="font-medium text-gray-700 mb-2">AI Image Analysis:</h4>
+                    <p className="text-xs text-gray-600 leading-relaxed">
+                      {imageAnalysis.slice(0, 150)}...
                     </p>
                   </div>
                 )}

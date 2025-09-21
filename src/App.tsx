@@ -27,6 +27,7 @@ const App = () => (
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/seller-onboarding" element={<SellerOnboarding />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<div className="min-h-screen flex items-center justify-center bg-samhita-navy text-white"><p>Checkout Coming Soon</p></div>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

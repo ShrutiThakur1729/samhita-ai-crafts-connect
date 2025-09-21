@@ -7,17 +7,21 @@ import { cn } from '@/lib/utils';
 interface VoiceInputProps {
   onTranscript: (transcript: string) => void;
   onGeneratedDescription?: (description: string) => void;
+  onImageAnalysis?: (analysis: string) => void;
   className?: string;
   placeholder?: string;
   language?: string;
+  imageFile?: File | null;
 }
 
 export const VoiceInput: React.FC<VoiceInputProps> = ({ 
   onTranscript, 
   onGeneratedDescription, 
+  onImageAnalysis,
   className,
   placeholder = "Tap to speak in your language...",
-  language = "hi-IN"
+  language = "hi-IN",
+  imageFile
 }) => {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -43,7 +47,25 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
       // Simulate AI processing - In real app, call your AI API
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const enhancedDescription = `This exquisite handcrafted ${rawInput} represents the rich heritage of Indian artisanship. Meticulously created using traditional techniques passed down through generations, each piece tells a unique story of cultural legacy and skilled craftsmanship. The intricate details and authentic materials make this a treasured addition to any collection, directly supporting the livelihood of talented artisans.`;
+      // Enhanced AI description with regional context
+      const craftTypes = ['pottery', 'textile', 'jewelry', 'woodwork', 'painting', 'metalwork'];
+      const detectedCraft = craftTypes.find(craft => 
+        rawInput.toLowerCase().includes(craft) || 
+        rawInput.toLowerCase().includes(craft.slice(0, -1))
+      ) || 'handcrafted item';
+      
+      const regions = {
+        pottery: 'Jaipur, Rajasthan',
+        textile: 'Banarasi, Uttar Pradesh', 
+        jewelry: 'Kundan, Jodhpur',
+        woodwork: 'Channapatna, Karnataka',
+        painting: 'Madhubani, Bihar',
+        metalwork: 'Moradabad, Uttar Pradesh'
+      };
+      
+      const region = regions[detectedCraft as keyof typeof regions] || 'Traditional Indian';
+      
+      const enhancedDescription = `This exquisite handcrafted ${rawInput} represents the rich heritage of ${region} artisanship. Meticulously created using traditional techniques passed down through generations, each piece tells a unique story of cultural legacy and skilled craftsmanship. The intricate details and authentic materials make this a treasured addition to any collection, directly supporting the livelihood of talented artisans and preserving centuries-old craft traditions.`;
       
       onGeneratedDescription?.(enhancedDescription);
       
@@ -59,6 +81,36 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
       setIsProcessing(false);
     }
   };
+
+  const analyzeProductImage = async () => {
+    if (!imageFile) return;
+    
+    setIsProcessing(true);
+    try {
+      // Simulate AI image analysis
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      const imageAnalysis = `Based on the uploaded image, this appears to be a traditional Indian handicraft with intricate patterns and vibrant colors. The craftsmanship shows skilled artisan work with attention to detail. The materials appear to be of high quality with traditional finishing techniques. This piece would appeal to collectors of authentic Indian art and cultural enthusiasts looking for unique handmade items.`;
+      
+      onImageAnalysis?.(imageAnalysis);
+      
+      speak({ 
+        text: "छवि का विश्लेषण पूरा हो गया है", 
+        rate: 0.8,
+        voice: undefined 
+      });
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (imageFile && onImageAnalysis) {
+      analyzeProductImage();
+    }
+  }, [imageFile]);
 
   const toggleListening = () => {
     if (isListening) {
@@ -136,7 +188,9 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
         <div className="bg-gradient-to-r from-samhita-gold/10 to-yellow-100 rounded-lg p-4 border border-samhita-gold/20">
           <div className="flex items-center gap-3">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-samhita-gold"></div>
-            <p className="text-samhita-dark font-medium">AI is crafting your product story...</p>
+            <p className="text-samhita-dark font-medium">
+              {imageFile ? "AI is analyzing your product image..." : "AI is crafting your product story..."}
+            </p>
           </div>
         </div>
       )}
