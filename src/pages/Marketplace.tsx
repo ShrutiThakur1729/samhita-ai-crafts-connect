@@ -213,15 +213,23 @@ const Marketplace = () => {
             <IconHome className="h-5 w-5 text-samhita-gold" />
             <span className="text-xs text-samhita-gold font-medium">Home</span>
           </Button>
-          <Button variant="ghost" className="flex flex-col items-center gap-1 p-2">
+          <Button 
+            variant="ghost" 
+            className="flex flex-col items-center gap-1 p-2"
+            onClick={() => navigate('/discover')}
+          >
             <IconBookmark className="h-5 w-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Saved</span>
+            <span className="text-xs text-gray-400">Discover</span>
           </Button>
           <Button variant="ghost" className="flex flex-col items-center gap-1 p-2">
             <IconSettings className="h-5 w-5 text-gray-400" />
             <span className="text-xs text-gray-400">Orders</span>
           </Button>
-          <Button variant="ghost" className="flex flex-col items-center gap-1 p-2">
+          <Button 
+            variant="ghost" 
+            className="flex flex-col items-center gap-1 p-2"
+            onClick={() => navigate('/dashboard')}
+          >
             <IconUser className="h-5 w-5 text-gray-400" />
             <span className="text-xs text-gray-400">Profile</span>
           </Button>
