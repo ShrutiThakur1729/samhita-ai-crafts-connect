@@ -8,7 +8,7 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -36,6 +36,30 @@ All colors MUST be HSL.
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
+    /* Samhita Design System */
+    --samhita-dark: 222 47% 11%;
+    --samhita-dark-foreground: 45 38% 94%;
+    --samhita-gold: 45 93% 63%;
+    --samhita-gold-foreground: 222 47% 11%;
+    --samhita-cream: 45 38% 94%;
+    --samhita-cream-foreground: 222 47% 11%;
+    --samhita-navy: 222 47% 8%;
+    --samhita-navy-light: 222 47% 15%;
+    
+    /* Gradients */
+    --gradient-dark: linear-gradient(135deg, hsl(var(--samhita-navy)), hsl(var(--samhita-dark)));
+    --gradient-gold: linear-gradient(135deg, hsl(var(--samhita-gold)), hsl(45 100% 75%));
+    --gradient-craft: linear-gradient(135deg, hsl(var(--samhita-dark)), hsl(222 47% 20%));
+
+    /* Shadows */
+    --shadow-elegant: 0 10px 30px -10px hsl(var(--samhita-dark) / 0.3);
+    --shadow-glow: 0 0 40px hsl(var(--samhita-gold) / 0.4);
+    --shadow-craft: 0 20px 60px -10px hsl(var(--samhita-navy) / 0.5);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
@@ -56,33 +80,33 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 222 47% 8%;
+    --foreground: 45 38% 94%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 45 38% 94%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 45 38% 94%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 45 38% 94%;
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 222 47% 15%;
+    --secondary-foreground: 45 38% 94%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 222 47% 15%;
+    --muted-foreground: 45 20% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 222 47% 15%;
+    --accent-foreground: 45 38% 94%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 45 38% 94%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 222 47% 20%;
+    --input: 222 47% 15%;
+    --ring: 45 93% 63%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
