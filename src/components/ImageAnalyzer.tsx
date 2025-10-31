@@ -3,6 +3,7 @@ import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { IconUpload, IconPhoto, IconScan, IconSparkles } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageAnalyzerProps {
   onImageUpload: (file: File) => void;
@@ -41,27 +42,31 @@ export const ImageAnalyzer: React.FC<ImageAnalyzerProps> = ({
   const analyzeImage = async (file: File) => {
     setIsAnalyzing(true);
     try {
-      // Simulate AI image analysis
-      await new Promise(resolve => setTimeout(resolve, 2500));
-      
-      const analysisResult = `🎨 **AI Image Analysis Complete**
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result as string;
+        
+        const { data, error } = await supabase.functions.invoke('analyze-product-image', {
+          body: {
+            imageBase64: base64Image,
+            language: 'en'
+          }
+        });
 
-**Detected Craft Type:** Traditional Indian Pottery
-**Quality Assessment:** High-quality handcrafted piece
-**Color Palette:** Rich earth tones with blue accents
-**Pattern Recognition:** Traditional geometric designs
-**Material Analysis:** Clay with natural glazing
-**Cultural Origin:** Likely Jaipur Blue Pottery style
-**Market Appeal:** High demand among collectors
-**Authenticity Score:** 95% traditional techniques
+        if (error) {
+          console.error('Error analyzing image:', error);
+          throw error;
+        }
 
-**Suggested Keywords:** Blue pottery, Jaipur handicraft, traditional ceramics, Indian art, handmade vase`;
-
-      setAnalysis(analysisResult);
-      onAnalysisComplete?.(analysisResult);
+        const analysisResult = data?.analysis || 'Image analyzed successfully';
+        setAnalysis(analysisResult);
+        onAnalysisComplete?.(analysisResult);
+        setIsAnalyzing(false);
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
       console.error('Error analyzing image:', error);
-    } finally {
+      setAnalysis('Error analyzing image. Please try again.');
       setIsAnalyzing(false);
     }
   };

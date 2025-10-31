@@ -3,6 +3,7 @@ import { useSpeechSynthesis, useSpeechRecognition } from 'react-speech-kit';
 import { IconMicrophone, IconMicrophoneOff } from '@tabler/icons-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface VoiceInputProps {
   onTranscript: (transcript: string) => void;
@@ -44,39 +45,36 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
   const generateProductDescription = async (rawInput: string) => {
     setIsProcessing(true);
     try {
-      // Simulate AI processing - In real app, call your AI API
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Enhanced AI description with regional context
-      const craftTypes = ['pottery', 'textile', 'jewelry', 'woodwork', 'painting', 'metalwork'];
-      const detectedCraft = craftTypes.find(craft => 
-        rawInput.toLowerCase().includes(craft) || 
-        rawInput.toLowerCase().includes(craft.slice(0, -1))
-      ) || 'handcrafted item';
-      
-      const regions = {
-        pottery: 'Jaipur, Rajasthan',
-        textile: 'Banarasi, Uttar Pradesh', 
-        jewelry: 'Kundan, Jodhpur',
-        woodwork: 'Channapatna, Karnataka',
-        painting: 'Madhubani, Bihar',
-        metalwork: 'Moradabad, Uttar Pradesh'
-      };
-      
-      const region = regions[detectedCraft as keyof typeof regions] || 'Traditional Indian';
-      
-      const enhancedDescription = `This exquisite handcrafted ${rawInput} represents the rich heritage of ${region} artisanship. Meticulously created using traditional techniques passed down through generations, each piece tells a unique story of cultural legacy and skilled craftsmanship. The intricate details and authentic materials make this a treasured addition to any collection, directly supporting the livelihood of talented artisans and preserving centuries-old craft traditions.`;
-      
-      onGeneratedDescription?.(enhancedDescription);
+      const { data, error } = await supabase.functions.invoke('generate-product-story', {
+        body: {
+          productInfo: {
+            transcript: rawInput,
+            region: 'India'
+          },
+          language: language.startsWith('hi') ? 'hi' : 'en'
+        }
+      });
+
+      if (error) {
+        console.error('Error generating description:', error);
+        throw error;
+      }
+
+      const story = data?.story || rawInput;
+      onGeneratedDescription?.(story);
       
       // Provide voice feedback
       speak({ 
-        text: "मैंने आपके उत्पाद के लिए एक सुंदर विवरण तैयार किया है", 
+        text: language.startsWith('hi') 
+          ? "मैंने आपके उत्पाद के लिए एक सुंदर विवरण तैयार किया है" 
+          : "I've created a beautiful description for your product", 
         rate: 0.8,
         voice: undefined 
       });
     } catch (error) {
       console.error('Error generating description:', error);
+      // Fallback to basic description
+      onGeneratedDescription?.(rawInput);
     } finally {
       setIsProcessing(false);
     }
@@ -87,21 +85,37 @@ export const VoiceInput: React.FC<VoiceInputProps> = ({
     
     setIsProcessing(true);
     try {
-      // Simulate AI image analysis
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      const imageAnalysis = `Based on the uploaded image, this appears to be a traditional Indian handicraft with intricate patterns and vibrant colors. The craftsmanship shows skilled artisan work with attention to detail. The materials appear to be of high quality with traditional finishing techniques. This piece would appeal to collectors of authentic Indian art and cultural enthusiasts looking for unique handmade items.`;
-      
-      onImageAnalysis?.(imageAnalysis);
-      
-      speak({ 
-        text: "छवि का विश्लेषण पूरा हो गया है", 
-        rate: 0.8,
-        voice: undefined 
-      });
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result as string;
+        
+        const { data, error } = await supabase.functions.invoke('analyze-product-image', {
+          body: {
+            imageBase64: base64Image,
+            language: language.startsWith('hi') ? 'hi' : 'en'
+          }
+        });
+
+        if (error) {
+          console.error('Error analyzing image:', error);
+          throw error;
+        }
+
+        const analysis = data?.analysis || "Image analyzed successfully";
+        onImageAnalysis?.(analysis);
+        
+        speak({ 
+          text: language.startsWith('hi') 
+            ? "छवि का विश्लेषण पूरा हो गया है" 
+            : "Image analysis is complete", 
+          rate: 0.8,
+          voice: undefined 
+        });
+        setIsProcessing(false);
+      };
+      reader.readAsDataURL(imageFile);
     } catch (error) {
       console.error('Error analyzing image:', error);
-    } finally {
       setIsProcessing(false);
     }
   };
