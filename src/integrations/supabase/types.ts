@@ -14,7 +14,276 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      artisans: {
+        Row: {
+          awards: string[] | null
+          bio: string | null
+          craft_journey: string | null
+          craft_type: string | null
+          created_at: string | null
+          id: string
+          milestones: Json | null
+          portfolio_images: string[] | null
+          region: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          awards?: string[] | null
+          bio?: string | null
+          craft_journey?: string | null
+          craft_type?: string | null
+          created_at?: string | null
+          id?: string
+          milestones?: Json | null
+          portfolio_images?: string[] | null
+          region?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          awards?: string[] | null
+          bio?: string | null
+          craft_journey?: string | null
+          craft_type?: string | null
+          created_at?: string | null
+          id?: string
+          milestones?: Json | null
+          portfolio_images?: string[] | null
+          region?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "artisans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          order_id: string | null
+          price: number
+          product_id: string | null
+          quantity: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          price: number
+          product_id?: string | null
+          quantity: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          order_id?: string | null
+          price?: number
+          product_id?: string | null
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          buyer_id: string | null
+          created_at: string | null
+          id: string
+          shipping_address: string | null
+          status: string | null
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_id?: string | null
+          created_at?: string | null
+          id?: string
+          shipping_address?: string | null
+          status?: string | null
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_id?: string | null
+          created_at?: string | null
+          id?: string
+          shipping_address?: string | null
+          status?: string | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          ai_generated_story: string | null
+          artisan_id: string | null
+          category: string | null
+          craft_type: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          images: string[] | null
+          is_featured: boolean | null
+          materials: string[] | null
+          name: string
+          price: number
+          rating: number | null
+          region: string | null
+          reviews_count: number | null
+          stock_quantity: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          ai_generated_story?: string | null
+          artisan_id?: string | null
+          category?: string | null
+          craft_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_featured?: boolean | null
+          materials?: string[] | null
+          name: string
+          price: number
+          rating?: number | null
+          region?: string | null
+          reviews_count?: number | null
+          stock_quantity?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          ai_generated_story?: string | null
+          artisan_id?: string | null
+          category?: string | null
+          craft_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_featured?: boolean | null
+          materials?: string[] | null
+          name?: string
+          price?: number
+          rating?: number | null
+          region?: string | null
+          reviews_count?: number | null
+          stock_quantity?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_artisan_id_fkey"
+            columns: ["artisan_id"]
+            isOneToOne: false
+            referencedRelation: "artisans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string
+          language_preference: string | null
+          location: string | null
+          phone: string | null
+          updated_at: string | null
+          user_type: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          language_preference?: string | null
+          location?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          user_type?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          language_preference?: string | null
+          location?: string | null
+          phone?: string | null
+          updated_at?: string | null
+          user_type?: string | null
+        }
+        Relationships: []
+      }
+      wishlists: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlists_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wishlists_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
