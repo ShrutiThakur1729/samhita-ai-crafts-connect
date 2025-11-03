@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { VoiceInput } from '@/components/VoiceInput';
 import { ImageAnalyzer } from '@/components/ImageAnalyzer';
-import { IconArrowLeft, IconUpload, IconCheck, IconSparkles } from '@tabler/icons-react';
+import { ARViewer } from '@/components/ARViewer';
+import { IconArrowLeft, IconUpload, IconCheck, IconSparkles, Icon3dCubeSphere } from '@tabler/icons-react';
 import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import craftBackground from '@/assets/craft-background.jpg';
+import { useTranslation } from 'react-i18next';
 
 const SellerOnboarding = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { t, i18n } = useTranslation();
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     productName: '',
     price: '',
@@ -19,13 +26,23 @@ const SellerOnboarding = () => {
     category: '',
     materials: '',
     dimensions: '',
-    photos: [] as File[]
+    region: '',
+    craftType: '',
+    photos: [] as File[],
+    enableAR: false,
+    arModel: null as File | null
   });
   
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [aiGeneratedDescription, setAiGeneratedDescription] = useState('');
   const [imageAnalysis, setImageAnalysis] = useState('');
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth?type=seller');
+    }
+  }, [user, navigate]);
 
   const handleVoiceTranscript = (transcript: string) => {
     setVoiceTranscript(transcript);
@@ -73,12 +90,70 @@ const SellerOnboarding = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    toast({
-      title: "Product Listed Successfully!",
-      description: "Your handcrafted item is now available on Samhita marketplace",
-    });
-    navigate('/seller-dashboard');
+  const handleSubmit = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      // Get or create artisan profile
+      let { data: artisan } = await supabase
+        .from('artisans')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!artisan) {
+        const { data: newArtisan, error: artisanError } = await supabase
+          .from('artisans')
+          .insert({ user_id: user.id })
+          .select()
+          .single();
+        
+        if (artisanError) throw artisanError;
+        artisan = newArtisan;
+      }
+
+      // Upload images to storage (simplified - in production use Supabase Storage)
+      const imageUrls = formData.photos.map((_, idx) => 
+        `https://placeholder.image/${idx}`
+      );
+
+      // Create product
+      const { data: product, error: productError } = await supabase
+        .from('products')
+        .insert({
+          artisan_id: artisan.id,
+          name: formData.productName,
+          price: parseFloat(formData.price),
+          description: formData.description || aiGeneratedDescription,
+          ai_generated_story: aiGeneratedDescription,
+          category: formData.category,
+          materials: formData.materials.split(',').map(m => m.trim()),
+          region: formData.region,
+          craft_type: formData.craftType,
+          images: imageUrls,
+          stock_quantity: 10,
+          is_featured: false
+        })
+        .select()
+        .single();
+
+      if (productError) throw productError;
+
+      toast({
+        title: t('thankYouForOrder'),
+        description: "Your handcrafted item is now available on Samhita marketplace",
+      });
+      navigate('/dashboard');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -289,6 +364,53 @@ const SellerOnboarding = () => {
                     className="rounded-xl"
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Region
+                  </label>
+                  <Input
+                    value={formData.region}
+                    onChange={(e) => handleInputChange('region', e.target.value)}
+                    placeholder="E.g., Jaipur, Rajasthan"
+                    className="rounded-xl"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Craft Type
+                  </label>
+                  <Input
+                    value={formData.craftType}
+                    onChange={(e) => handleInputChange('craftType', e.target.value)}
+                    placeholder="E.g., Blue Pottery, Madhubani"
+                    className="rounded-xl"
+                  />
+                </div>
+
+                {/* AR Preview Option */}
+                <div className="border-2 border-dashed border-blue-300 rounded-xl p-4 bg-blue-50">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Icon3dCubeSphere className="h-5 w-5 text-blue-600" />
+                    <h4 className="font-medium text-blue-900">{t('enableAR')} (Optional)</h4>
+                  </div>
+                  <p className="text-sm text-blue-700 mb-3">
+                    Upload photos for 3D AR preview. This helps buyers visualize your product.
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="enableAR"
+                      checked={formData.enableAR}
+                      onChange={(e) => setFormData(prev => ({ ...prev, enableAR: e.target.checked }))}
+                      className="w-4 h-4 text-blue-600 rounded"
+                    />
+                    <label htmlFor="enableAR" className="text-sm font-medium text-gray-700">
+                      Enable AR Preview for this product
+                    </label>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-3 mt-6">
@@ -375,9 +497,10 @@ const SellerOnboarding = () => {
                 </Button>
                 <Button 
                   onClick={handleSubmit}
+                  disabled={loading}
                   className="flex-1 bg-samhita-gold hover:bg-yellow-600 text-samhita-dark font-semibold rounded-xl"
                 >
-                  Publish Listing
+                  {loading ? 'Publishing...' : 'Publish Listing'}
                 </Button>
               </div>
             </Card>
