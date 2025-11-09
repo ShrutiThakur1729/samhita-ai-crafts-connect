@@ -147,6 +147,7 @@ export type Database = {
       products: {
         Row: {
           ai_generated_story: string | null
+          ar_model_url: string | null
           artisan_id: string | null
           category: string | null
           craft_type: string | null
@@ -166,6 +167,7 @@ export type Database = {
         }
         Insert: {
           ai_generated_story?: string | null
+          ar_model_url?: string | null
           artisan_id?: string | null
           category?: string | null
           craft_type?: string | null
@@ -185,6 +187,7 @@ export type Database = {
         }
         Update: {
           ai_generated_story?: string | null
+          ar_model_url?: string | null
           artisan_id?: string | null
           category?: string | null
           craft_type?: string | null
