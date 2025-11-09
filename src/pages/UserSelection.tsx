@@ -82,7 +82,7 @@ const UserSelection = () => {
           </div>
 
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold mb-2">SAMHITA</h1>
+            <h1 className="text-4xl font-bold mb-2 text-white drop-shadow-lg">SAMHITA</h1>
             <p className="text-samhita-cream/90 text-lg">{t('tagline')}</p>
           </div>
 

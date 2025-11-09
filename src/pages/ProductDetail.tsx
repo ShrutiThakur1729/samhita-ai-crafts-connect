@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { 
   IconArrowLeft,
   IconHeart,
@@ -14,55 +15,56 @@ import {
   IconCamera
 } from '@tabler/icons-react';
 import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useCart } from '@/contexts/CartContext';
+import { ARViewer } from '@/components/ARViewer';
 import bluePottery from '@/assets/blue-pottery.jpg';
-import woodenToy from '@/assets/wooden-toy.jpg';
 
 const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [isFavorited, setIsFavorited] = useState(false);
   const [showARView, setShowARView] = useState(false);
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock product data - in real app, fetch based on ID
-  const product = {
-    id: parseInt(id || '1'),
-    name: id === '1' ? 'Jaipur Blue Pottery Vase' : 'Channapatna Wooden Toy',
-    price: id === '1' ? 2500 : 850,
-    rating: id === '1' ? 4.8 : 4.9,
-    reviews: id === '1' ? 23 : 45,
-    artisan: id === '1' ? 'Ramesh Kumar' : 'Lakshmi Devi',
-    location: id === '1' ? 'Jaipur, Rajasthan' : 'Channapatna, Karnataka',
-    image: id === '1' ? bluePottery : woodenToy,
-    images: id === '1' ? [bluePottery, bluePottery, bluePottery] : [woodenToy, woodenToy, woodenToy],
-    description: id === '1' 
-      ? "This exquisite blue pottery vase represents centuries of Jaipur's artistic heritage. Handcrafted using traditional techniques, each piece features intricate patterns that tell stories of royal Rajasthani culture."
-      : "This vibrant Channapatna wooden toy showcases the finest South Indian craftsmanship. Made from sustainable hala wood and colored with natural dyes, it's safe for children and supports local artisan communities.",
-    story: id === '1'
-      ? "Ramesh Kumar learned this ancient art from his grandfather in the lanes of Jaipur's old city. Each pottery piece takes 3-4 days to complete, involving hand-throwing, intricate painting, and traditional firing techniques passed down through generations."
-      : "Lakshmi Devi is a master craftswoman from Channapatna, known as India's toy town. Her wooden elephants are carved from sustainable hala wood and painted with natural, child-safe colors that have made Channapatna toys famous worldwide.",
-    specifications: id === '1'
-      ? ["Height: 12 inches", "Material: Clay & Natural Glazes", "Weight: 800g", "Dishwasher Safe: No"]
-      : ["Size: 6x4 inches", "Material: Hala Wood", "Weight: 200g", "Age: 3+ years"],
-    shipping: "₹50",
-    delivery: "3-5 business days"
+  useEffect(() => {
+    fetchProduct();
+  }, [id]);
+
+  const fetchProduct = async () => {
+    if (!id) return;
+    setLoading(true);
+    const { data } = await supabase
+      .from('products')
+      .select(`
+        *,
+        artisans (
+          profiles (full_name)
+        )
+      `)
+      .eq('id', id)
+      .single();
+    
+    setProduct(data);
+    setLoading(false);
   };
 
-  const similarProducts = [
-    { name: 'Blue Ceramic Plate', price: '₹1,200', image: bluePottery },
-    { name: 'Wooden Horse Toy', price: '₹650', image: woodenToy }
-  ];
-
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    if (!product) return;
+    await addToCart(product.id, quantity);
     toast({
       title: "Added to Cart!",
       description: `${quantity}x ${product.name} added successfully`,
     });
-    navigate('/cart');
   };
 
-  const handleBuyNow = () => {
-    navigate('/checkout', { state: { product, quantity } });
+  const handleBuyNow = async () => {
+    if (!product) return;
+    await addToCart(product.id, quantity);
+    navigate('/checkout');
   };
 
   const toggleFavorite = () => {
@@ -73,13 +75,21 @@ const ProductDetail = () => {
     });
   };
 
-  const handleARView = () => {
-    setShowARView(true);
-    toast({
-      title: "AR View Activated",
-      description: "Point your camera to visualize the product in your space",
-    });
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading product...</p>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Product not found</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,17 +124,19 @@ const ProductDetail = () => {
         {/* Product Images */}
         <div className="relative">
           <img 
-            src={product.image} 
+            src={product.images?.[0] || bluePottery} 
             alt={product.name}
             className="w-full h-80 object-cover"
           />
-          <Button
-            onClick={handleARView}
-            className="absolute bottom-4 left-4 bg-white/90 text-gray-900 hover:bg-white backdrop-blur-sm"
-          >
-            <IconCamera className="h-4 w-4 mr-2" />
-            View in AR
-          </Button>
+          {product.ar_model_url && (
+            <Button
+              onClick={() => setShowARView(true)}
+              className="absolute bottom-4 left-4 bg-white/90 text-gray-900 hover:bg-white backdrop-blur-sm"
+            >
+              <IconCamera className="h-4 w-4 mr-2" />
+              View in AR
+            </Button>
+          )}
         </div>
 
         <div className="px-4 py-6 space-y-6">
@@ -139,16 +151,18 @@ const ProductDetail = () => {
               </div>
             </div>
             
-            <p className="text-gray-600 mb-2">Handcrafted by {product.artisan}</p>
+            <p className="text-gray-600 mb-2">
+              Handcrafted by {product.artisans?.profiles?.full_name || 'Artisan'}
+            </p>
             <div className="flex items-center gap-1 mb-4">
               <IconMapPin className="h-4 w-4 text-gray-500" />
-              <span className="text-gray-500 text-sm">{product.location}</span>
+              <span className="text-gray-500 text-sm">{product.region || 'India'}</span>
             </div>
             
             <div className="flex items-center justify-between">
               <span className="text-3xl font-bold text-gray-900">₹{product.price.toLocaleString()}</span>
               <Badge variant="secondary" className="bg-green-100 text-green-800">
-                In Stock
+                {product.stock_quantity > 0 ? 'In Stock' : 'Out of Stock'}
               </Badge>
             </div>
           </div>
@@ -179,21 +193,35 @@ const ProductDetail = () => {
             <p className="text-gray-700 text-sm leading-relaxed mb-3">
               {product.description}
             </p>
-            <p className="text-gray-700 text-sm leading-relaxed">
-              {product.story}
-            </p>
+            {product.ai_generated_story && (
+              <p className="text-gray-700 text-sm leading-relaxed">
+                {product.ai_generated_story}
+              </p>
+            )}
           </Card>
 
           {/* Specifications */}
           <div>
             <h3 className="font-bold text-gray-900 mb-3">Product Details</h3>
             <div className="space-y-2">
-              {product.specifications.map((spec, index) => (
-                <div key={index} className="flex justify-between text-sm">
-                  <span className="text-gray-600">{spec.split(':')[0]}:</span>
-                  <span className="font-medium text-gray-900">{spec.split(':')[1]}</span>
+              {product.materials && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Materials:</span>
+                  <span className="font-medium text-gray-900">{product.materials.join(', ')}</span>
                 </div>
-              ))}
+              )}
+              {product.craft_type && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Craft Type:</span>
+                  <span className="font-medium text-gray-900">{product.craft_type}</span>
+                </div>
+              )}
+              {product.category && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Category:</span>
+                  <span className="font-medium text-gray-900">{product.category}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -217,21 +245,6 @@ const ProductDetail = () => {
             </div>
           </Card>
 
-          {/* Similar Products */}
-          <div>
-            <h3 className="font-bold text-gray-900 mb-4">Similar Products</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {similarProducts.map((item, index) => (
-                <Card key={index} className="overflow-hidden">
-                  <img src={item.image} alt={item.name} className="w-full h-32 object-cover" />
-                  <div className="p-3">
-                    <h4 className="font-medium text-gray-900 text-sm mb-1">{item.name}</h4>
-                    <p className="text-samhita-gold font-bold">{item.price}</p>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -256,23 +269,13 @@ const ProductDetail = () => {
       </div>
 
       {/* AR View Modal */}
-      {showARView && (
-        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
-          <div className="text-white text-center">
-            <div className="w-64 h-64 border-2 border-white/30 rounded-lg mb-4 flex items-center justify-center">
-              <p className="text-white/80">AR Camera View</p>
-            </div>
-            <p className="mb-4">Point camera at a flat surface</p>
-            <Button 
-              onClick={() => setShowARView(false)}
-              variant="outline"
-              className="border-white text-white hover:bg-white hover:text-black"
-            >
-              Exit AR
-            </Button>
+      <Dialog open={showARView} onOpenChange={setShowARView}>
+        <DialogContent className="max-w-4xl h-[80vh] p-0">
+          <div className="w-full h-full">
+            <ARViewer modelUrl={product.ar_model_url} className="w-full h-full" />
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

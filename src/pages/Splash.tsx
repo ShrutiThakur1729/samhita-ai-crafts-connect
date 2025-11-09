@@ -41,8 +41,8 @@ const Splash = () => {
           </div>
         </div>
 
-        {/* App Name */}
-        <h1 className="text-5xl font-bold text-samhita-cream mb-4 tracking-wider">
+        {/* Logo */}
+        <h1 className="text-5xl font-bold text-white mb-4 tracking-wider drop-shadow-lg">
           SAMHITA
         </h1>
 

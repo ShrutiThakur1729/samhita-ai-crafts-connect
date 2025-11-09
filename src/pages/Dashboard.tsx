@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -14,16 +14,50 @@ import {
   IconBookmark,
   IconShoppingCart
 } from '@tabler/icons-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import bluePottery from '@/assets/blue-pottery.jpg';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<any>(null);
+  const [stats, setStats] = useState({
+    products: 0,
+    livelihoods: 0,
+    artforms: 0
+  });
 
-  const stats = [
-    { value: 35, label: 'Products', color: 'text-samhita-gold' },
-    { value: 2000, label: 'Livelihoods', color: 'text-green-500' },
-    { value: 27, label: 'Artforms', color: 'text-blue-500' }
-  ];
+  useEffect(() => {
+    fetchProfile();
+    fetchStats();
+  }, [user]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    setProfile(data);
+  };
+
+  const fetchStats = async () => {
+    const { count: productsCount } = await supabase
+      .from('products')
+      .select('*', { count: 'exact', head: true });
+    
+    const { count: artisansCount } = await supabase
+      .from('artisans')
+      .select('*', { count: 'exact', head: true });
+
+    setStats({
+      products: productsCount || 0,
+      livelihoods: artisansCount || 0,
+      artforms: 27 // This could be fetched from a categories table
+    });
+  };
 
   const menuItems = [
     { icon: IconEdit, label: 'Edit Profile', action: () => {} },
@@ -63,29 +97,17 @@ const Dashboard = () => {
           {/* Profile Section */}
           <div className="text-center text-white">
             <div className="w-20 h-20 bg-gradient-to-br from-samhita-gold to-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-samhita-dark font-bold text-2xl">P</span>
+              <span className="text-samhita-dark font-bold text-2xl">
+                {profile?.full_name?.[0]?.toUpperCase() || 'G'}
+              </span>
             </div>
-            <h1 className="text-2xl font-bold mb-1">Hi, Payal Arora</h1>
+            <h1 className="text-2xl font-bold mb-1">Hi, {profile?.full_name || 'Guest'}</h1>
             <div className="flex items-center justify-center gap-1 text-white/80 text-sm">
               <IconMapPin className="h-4 w-4" />
-              <span>D-2 JAHANPURI, NEW DELHI</span>
+              <span>{profile?.location?.toUpperCase() || 'UPDATE YOUR LOCATION'}</span>
             </div>
-            <p className="text-white/60 text-sm">ART ENTHUSIAST</p>
+            <p className="text-white/60 text-sm">{profile?.user_type?.toUpperCase() || 'USER'}</p>
           </div>
-
-          {/* Followers/Following */}
-          <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-4">
-            <div className="grid grid-cols-2 gap-4 text-center text-white">
-              <div>
-                <p className="text-sm text-white/60">FOLLOWERS</p>
-                <p className="text-xl font-bold">95</p>
-              </div>
-              <div>
-                <p className="text-sm text-white/60">FOLLOWING</p>
-                <p className="text-xl font-bold">100</p>
-              </div>
-            </div>
-          </Card>
 
           {/* Swadeshi Points */}
           <Card className="bg-white/10 backdrop-blur-sm border-white/20 p-4">
@@ -108,12 +130,18 @@ const Dashboard = () => {
             </div>
             
             <div className="grid grid-cols-3 gap-4 text-center">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-white">
-                  <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
-                  <p className="text-sm text-white/80">{stat.label}</p>
-                </div>
-              ))}
+              <div className="text-white">
+                <p className="text-2xl font-bold text-samhita-gold">{stats.products}</p>
+                <p className="text-sm text-white/80">Products</p>
+              </div>
+              <div className="text-white">
+                <p className="text-2xl font-bold text-green-500">{stats.livelihoods}</p>
+                <p className="text-sm text-white/80">Livelihoods</p>
+              </div>
+              <div className="text-white">
+                <p className="text-2xl font-bold text-blue-500">{stats.artforms}</p>
+                <p className="text-sm text-white/80">Artforms</p>
+              </div>
             </div>
           </Card>
 

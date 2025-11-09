@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,12 +13,19 @@ import {
   IconSettings,
   IconStar
 } from '@tabler/icons-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useCart } from '@/contexts/CartContext';
 import bluePottery from '@/assets/blue-pottery.jpg';
-import woodenToy from '@/assets/wooden-toy.jpg';
 
 const Marketplace = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { itemCount } = useCart();
   const [searchQuery, setSearchQuery] = useState('');
+  const [products, setProducts] = useState<any[]>([]);
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const categories = [
     { icon: IconHome, label: 'Decor' },
@@ -28,32 +35,39 @@ const Marketplace = () => {
     { icon: IconUser, label: 'Kitchen' },
   ];
 
-  const featuredProducts = [
-    {
-      id: 1,
-      name: 'Jaipur Blue Pottery Vase',
-      price: '₹2,500',
-      rating: 4.8,
-      reviews: 23,
-      artisan: 'Ramesh Kumar',
-      location: 'Jaipur, Rajasthan',
-      image: bluePottery,
-      tag: 'Bestseller'
-    },
-    {
-      id: 2,
-      name: 'Channapatna Wooden Toy',
-      price: '₹850',
-      rating: 4.9,
-      reviews: 45,
-      artisan: 'Lakshmi Devi',
-      location: 'Channapatna, Karnataka',
-      image: woodenToy,
-      tag: 'Trending'
-    }
-  ];
+  useEffect(() => {
+    fetchProfile();
+    fetchProducts();
+  }, [user]);
 
-  const handleProductClick = (productId: number) => {
+  const fetchProfile = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    setProfile(data);
+  };
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('products')
+      .select(`
+        *,
+        artisans (
+          profiles (full_name)
+        )
+      `)
+      .eq('is_featured', true)
+      .limit(10);
+    
+    setProducts(data || []);
+    setLoading(false);
+  };
+
+  const handleProductClick = (productId: string) => {
     navigate(`/product/${productId}`);
   };
 
@@ -66,7 +80,7 @@ const Marketplace = () => {
             <IconMapPin className="h-5 w-5 text-gray-600" />
             <div>
               <p className="text-sm text-gray-600">Your current location</p>
-              <p className="font-semibold text-gray-900">D-2 Vasant Kunj, New Delhi</p>
+              <p className="font-semibold text-gray-900">{profile?.location || 'Update your location'}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -76,10 +90,15 @@ const Marketplace = () => {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="p-2"
+              className="p-2 relative"
               onClick={() => navigate('/cart')}
             >
               <IconShoppingCart className="h-5 w-5" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-samhita-gold text-samhita-dark text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
             </Button>
           </div>
         </div>
@@ -87,10 +106,12 @@ const Marketplace = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Welcome back,</h1>
-            <p className="text-2xl font-bold text-gray-900">Payal.</p>
+            <p className="text-2xl font-bold text-gray-900">{profile?.full_name?.split(' ')[0] || 'Guest'}.</p>
           </div>
           <div className="w-12 h-12 bg-gradient-to-br from-samhita-gold to-yellow-400 rounded-full flex items-center justify-center">
-            <span className="text-samhita-dark font-bold text-lg">P</span>
+            <span className="text-samhita-dark font-bold text-lg">
+              {profile?.full_name?.[0]?.toUpperCase() || 'G'}
+            </span>
           </div>
         </div>
       </header>
@@ -169,39 +190,49 @@ const Marketplace = () => {
 
           {/* Product Grid */}
           <div className="grid grid-cols-1 gap-6">
-            {featuredProducts.map((product) => (
-              <Card 
-                key={product.id}
-                className="overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all cursor-pointer"
-                onClick={() => handleProductClick(product.id)}
-              >
-                <div className="relative">
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-samhita-gold text-samhita-dark text-xs font-bold px-3 py-1 rounded-full">
-                      {product.tag}
-                    </span>
+            {loading ? (
+              <p className="text-center text-gray-600">Loading products...</p>
+            ) : products.length === 0 ? (
+              <p className="text-center text-gray-600">No products available yet.</p>
+            ) : (
+              products.map((product) => (
+                <Card 
+                  key={product.id}
+                  className="overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-all cursor-pointer"
+                  onClick={() => handleProductClick(product.id)}
+                >
+                  <div className="relative">
+                    <img 
+                      src={product.images?.[0] || bluePottery} 
+                      alt={product.name}
+                      className="w-full h-48 object-cover"
+                    />
+                    {product.is_featured && (
+                      <div className="absolute top-4 left-4">
+                        <span className="bg-samhita-gold text-samhita-dark text-xs font-bold px-3 py-1 rounded-full">
+                          Featured
+                        </span>
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-gray-900 mb-1">{product.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">by {product.artisan}</p>
-                  <p className="text-sm text-gray-500 mb-3">{product.location}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-gray-900">{product.price}</span>
-                    <div className="flex items-center gap-1">
-                      <IconStar className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">{product.rating}</span>
-                      <span className="text-sm text-gray-500">({product.reviews})</span>
+                  <div className="p-4">
+                    <h3 className="font-bold text-gray-900 mb-1">{product.name}</h3>
+                    <p className="text-sm text-gray-600 mb-2">
+                      by {product.artisans?.profiles?.full_name || 'Artisan'}
+                    </p>
+                    <p className="text-sm text-gray-500 mb-3">{product.region || 'India'}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xl font-bold text-gray-900">₹{product.price.toLocaleString()}</span>
+                      <div className="flex items-center gap-1">
+                        <IconStar className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm font-medium">{product.rating || 5.0}</span>
+                        <span className="text-sm text-gray-500">({product.reviews_count || 0})</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))
+            )}
           </div>
         </div>
       </div>
