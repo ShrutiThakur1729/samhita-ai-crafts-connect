@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   IconSearch, 
   IconMapPin, 
@@ -11,17 +12,21 @@ import {
   IconHome,
   IconBookmark,
   IconSettings,
-  IconStar
+  IconStar,
+  IconLogout,
+  IconChevronDown
 } from '@tabler/icons-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useCart } from '@/contexts/CartContext';
+import { useToast } from '@/hooks/use-toast';
 import bluePottery from '@/assets/blue-pottery.jpg';
 
 const Marketplace = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { itemCount } = useCart();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
@@ -71,6 +76,15 @@ const Marketplace = () => {
     navigate(`/product/${productId}`);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out",
+    });
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -100,6 +114,38 @@ const Marketplace = () => {
                 </span>
               )}
             </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="sm" className="p-2">
+                  <IconUser className="h-5 w-5" />
+                  <IconChevronDown className="h-4 w-4 ml-1" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56" align="end">
+                <div className="space-y-2">
+                  <div className="px-2 py-1.5 border-b">
+                    <p className="text-sm font-medium">{profile?.full_name || 'User'}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    <IconSettings className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={handleSignOut}
+                  >
+                    <IconLogout className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import "./i18n/config";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -36,16 +37,16 @@ const App = () => (
               <Route path="/splash" element={<Splash />} />
               <Route path="/" element={<UserSelection />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/marketplace" element={<Marketplace />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/seller-onboarding" element={<SellerOnboarding />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/discover" element={<Discover />} />
-              <Route path="/events" element={<EventsNear />} />
-              <Route path="/geo-location" element={<GeoLocation />} />
+              <Route path="/marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
+              <Route path="/product/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
+              <Route path="/seller-onboarding" element={<ProtectedRoute><SellerOnboarding /></ProtectedRoute>} />
+              <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+              <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+              <Route path="/order-confirmation/:orderId" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/discover" element={<ProtectedRoute><Discover /></ProtectedRoute>} />
+              <Route path="/events" element={<ProtectedRoute><EventsNear /></ProtectedRoute>} />
+              <Route path="/geo-location" element={<ProtectedRoute><GeoLocation /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

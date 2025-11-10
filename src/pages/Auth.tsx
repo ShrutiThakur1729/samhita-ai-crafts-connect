@@ -7,8 +7,13 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { IconBrandGoogle, IconMail, IconLock, IconEye, IconEyeOff } from '@tabler/icons-react';
+import { z } from 'zod';
 
 type AuthMode = 'login' | 'signup' | 'reset';
+
+// Input validation schemas
+const emailSchema = z.string().trim().email({ message: "Invalid email address" }).max(255);
+const passwordSchema = z.string().min(6, { message: "Password must be at least 6 characters" }).max(100);
 
 const Auth = () => {
   const [searchParams] = useSearchParams();
@@ -19,6 +24,8 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   
   const { signUp, signIn, signInWithGoogle, resetPassword, user } = useAuth();
   const navigate = useNavigate();
@@ -36,8 +43,17 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setEmailError('');
+    setPasswordError('');
 
     try {
+      // Validate email
+      const emailValidation = emailSchema.safeParse(email);
+      if (!emailValidation.success) {
+        setEmailError(emailValidation.error.errors[0].message);
+        throw new Error(emailValidation.error.errors[0].message);
+      }
+
       if (mode === 'reset') {
         const { error } = await resetPassword(email);
         if (error) throw error;
@@ -47,7 +63,15 @@ const Auth = () => {
         });
         setMode('login');
       } else if (mode === 'signup') {
+        // Validate password
+        const passwordValidation = passwordSchema.safeParse(password);
+        if (!passwordValidation.success) {
+          setPasswordError(passwordValidation.error.errors[0].message);
+          throw new Error(passwordValidation.error.errors[0].message);
+        }
+
         if (password !== confirmPassword) {
+          setPasswordError('Passwords do not match');
           throw new Error('Passwords do not match');
         }
         const { error } = await signUp(email, password, userType);
@@ -107,11 +131,15 @@ const Auth = () => {
               <Input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10"
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailError('');
+                }}
+                className={`pl-10 ${emailError ? 'border-red-500' : ''}`}
                 required
               />
             </div>
+            {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
           </div>
 
           {mode !== 'reset' && (
@@ -122,8 +150,11 @@ const Auth = () => {
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setPasswordError('');
+                  }}
+                  className={`pl-10 pr-10 ${passwordError ? 'border-red-500' : ''}`}
                   required
                 />
                 <button
@@ -134,6 +165,7 @@ const Auth = () => {
                   {showPassword ? <IconEyeOff className="h-5 w-5" /> : <IconEye className="h-5 w-5" />}
                 </button>
               </div>
+              {passwordError && <p className="text-red-500 text-sm mt-1">{passwordError}</p>}
             </div>
           )}
 
