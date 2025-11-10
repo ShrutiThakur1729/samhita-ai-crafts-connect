@@ -272,7 +272,11 @@ const ProductDetail = () => {
       <Dialog open={showARView} onOpenChange={setShowARView}>
         <DialogContent className="max-w-4xl h-[80vh] p-0">
           <div className="w-full h-full">
-            <ARViewer modelUrl={product.ar_model_url} className="w-full h-full" />
+            <ARViewer 
+              modelUrl={product.ar_model_url} 
+              productName={product.name}
+              className="w-full h-full" 
+            />
           </div>
         </DialogContent>
       </Dialog>
