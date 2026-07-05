@@ -1,73 +1,275 @@
-# Welcome to your Lovable project
+# 🛍️ Samhita
 
-## Project info
+### AI-Powered Marketplace Assistant for Local Artisans
 
-**URL**: https://lovable.dev/projects/95412f94-ef1c-4128-8eb4-3d50f276f9b7
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Google Gen AI Exchange](https://img.shields.io/badge/Google_Gen_AI_Exchange-Hackathon-4285F4?style=for-the-badge)
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+<p align="center">
 
-**Use Lovable**
+<img src="banner.png" width="100%">
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/95412f94-ef1c-4128-8eb4-3d50f276f9b7) and start prompting.
+</p>
 
-Changes made via Lovable will be committed automatically to this repo.
+### Team QuadCore AI • Google Gen AI Exchange Hackathon • AI for Inclusive Commerce
 
-**Use your preferred IDE**
+<p align="center">
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+<a href="YOUR_LIVE_DEMO">
+<img src="https://img.shields.io/badge/🌐_Live_Demo-00C853?style=for-the-badge">
+</a>
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+<a href="YOUR_DEMO_VIDEO">
+<img src="https://img.shields.io/badge/🎥_Demo_Video-FF1744?style=for-the-badge">
+</a>
 
-Follow these steps:
+<a href="https://github.com/ShrutiThakur1729/samhita-ai-crafts-connect">
+<img src="https://img.shields.io/badge/📂_Source_Code-181717?style=for-the-badge&logo=github">
+</a>
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+</p>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 📌 The Problem
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+India is home to millions of talented artisans, weavers, and small-scale craft businesses. Despite their creativity, many struggle to reach digital customers due to:
+
+- Limited online visibility
+- Language barriers
+- Lack of digital marketing expertise
+- Difficulty showcasing handmade products
+- Competition with mass-produced goods
+
+As a result, traditional craftsmanship often remains undiscovered while artisans miss valuable income opportunities.
+
+---
+
+# 💡 Our Solution
+
+**Samhita** is an AI-powered marketplace assistant that empowers local artisans by making it easier to showcase, promote, and sell handcrafted products online.
+
+Powered by **Google Gemini AI**, Samhita helps artisans generate engaging product descriptions, improve product discovery, and connect with a wider audience through an intuitive digital marketplace.
+
+---
+
+# ✨ Key Features
+
+| Feature | Description |
+|----------|-------------|
+| 🤖 AI Product Assistant | Generates compelling product descriptions using Gemini AI |
+| 🔍 Smart Product Search | Discover handcrafted products with intelligent filtering |
+| 🛍️ Marketplace Platform | Buy and sell authentic handmade products |
+| ❤️ Wishlist | Save favorite artisan products |
+| 🌍 Discover Local Artisans | Explore creators from different regions |
+| 📱 Responsive Design | Optimized for desktop, tablet, and mobile |
+| 🔐 Secure Authentication | Firebase Authentication for buyers and sellers |
+| 📊 Seller Dashboard | Manage products and marketplace listings |
+
+---
+
+# 📱 Application Screens
+
+> *(Replace with screenshots later.)*
+
+<p align="center">
+
+Home • Marketplace • Product Details
+
+<br><br>
+
+Seller Dashboard • Wishlist • Profile
+
+</p>
+
+---
+
+# 🏗️ System Architecture
+
+```text
+                   User
+                     │
+                     ▼
+          React + Vite Frontend
+                     │
+        ┌────────────┼────────────┐
+        ▼            ▼            ▼
+   Gemini AI     Firebase     Authentication
+        │            │            │
+        └────────────┼────────────┘
+                     ▼
+         AI-Powered Marketplace Experience
+```
+
+---
+
+# 🛠️ Tech Stack
+
+## 🤖 AI
+
+- Google Gemini API
+
+---
+
+## 💻 Frontend
+
+- React.js
+- Vite
+- Tailwind CSS
+
+---
+
+## ☁️ Backend & Cloud
+
+- Firebase Authentication
+- Firebase Firestore
+- Firebase Hosting
+
+---
+
+## 🎨 Design
+
+- Figma
+
+---
+
+# 🚀 Getting Started
+
+## Prerequisites
+
+- Node.js 18+
+- npm
+- Firebase CLI
+
+---
+
+## Clone Repository
+
+```bash
+git clone https://github.com/ShrutiThakur1729/samhita-ai-crafts-connect.git
+
+cd samhita-ai-crafts-connect
+```
+
+---
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## Configure Environment Variables
+
+Create a `.env` file:
+
+```env
+VITE_FIREBASE_API_KEY=
+
+VITE_FIREBASE_AUTH_DOMAIN=
+
+VITE_FIREBASE_PROJECT_ID=
+
+VITE_FIREBASE_STORAGE_BUCKET=
+
+VITE_FIREBASE_APP_ID=
+
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+
+VITE_GEMINI_API_KEY=
+```
+
+---
+
+## Run
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+# 📂 Project Structure
 
-**Use GitHub Codespaces**
+```text
+src/
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+├── components/
 
-## What technologies are used for this project?
+├── pages/
 
-This project is built with:
+├── services/
 
-- Vite
-- TypeScript
+├── hooks/
+
+├── assets/
+
+├── utils/
+
+└── App.jsx
+```
+
+---
+
+# 🌍 Sustainable Development Goals
+
+## SDG 8 — Decent Work & Economic Growth
+
+Supporting local artisans by expanding digital business opportunities.
+
+---
+
+## SDG 9 — Industry, Innovation and Infrastructure
+
+Promoting innovation through AI-enabled commerce.
+
+---
+
+## SDG 11 — Sustainable Cities and Communities
+
+Preserving local craftsmanship by connecting artisans with modern digital marketplaces.
+
+---
+
+# 📈 Future Roadmap
+
+- AI-powered multilingual product translation
+- Voice-based marketplace navigation
+- AI product image enhancement
+- Personalized shopping recommendations
+- UPI payment integration
+- Live artisan workshops
+- Community marketplace
+- Export marketplace support
+
+---
+
+# 👥 Team
+
+### QuadCore AI
+
+Google Gen AI Exchange Hackathon
+
+---
+
+# 🙏 Acknowledgements
+
+- Google Gen AI Exchange Hackathon
+- Google Gemini API
+- Firebase
 - React
-- shadcn-ui
-- Tailwind CSS
+- Vite
+- A. P. Shah Institute of Technology
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/95412f94-ef1c-4128-8eb4-3d50f276f9b7) and click on Share -> Publish.
+# ❤️ Empowering Artisans Through AI
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+> **"Every handcrafted product tells a story. AI helps that story reach the world."**
