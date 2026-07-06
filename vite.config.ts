@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/samhita-ai-crafts-connect/",
+  base: process.env.GITHUB_ACTIONS ? "/samhita-ai-crafts-connect/" : "/",
   server: {
     host: "::",
     port: 8080,
