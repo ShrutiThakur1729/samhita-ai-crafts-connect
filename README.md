@@ -75,20 +75,13 @@ Powered by **Google Gemini AI**, Samhita helps artisans generate engaging produc
 
 # 🏗️ System Architecture
 
-```text
-                   User
-                     │
-                     ▼
-          React + Vite Frontend
-                     │
-        ┌────────────┼────────────┐
-        ▼            ▼            ▼
-   Gemini AI     Firebase     Authentication
-        │            │            │
-        └────────────┼────────────┘
-                     ▼
-         AI-Powered Marketplace Experience
-```
+<p align="center">
+  <img src="sa.png" alt="Samhita System Architecture" width="100%">
+</p>
+
+<p align="center">
+  <em>High-level architecture of Samhita showcasing AI-powered product assistance, cloud services, and marketplace workflow.</em>
+</p>
 
 ---
 
