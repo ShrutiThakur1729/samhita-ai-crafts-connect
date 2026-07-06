@@ -73,22 +73,6 @@ Powered by **Google Gemini AI**, Samhita helps artisans generate engaging produc
 
 ---
 
-# 📱 Application Screens
-
-> *(Replace with screenshots later.)*
-
-<p align="center">
-
-Home • Marketplace • Product Details
-
-<br><br>
-
-Seller Dashboard • Wishlist • Profile
-
-</p>
-
----
-
 # 🏗️ System Architecture
 
 ```text
