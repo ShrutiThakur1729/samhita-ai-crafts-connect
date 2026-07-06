@@ -76,7 +76,7 @@ Powered by **Google Gemini AI**, Samhita helps artisans generate engaging produc
 # 🏗️ System Architecture
 
 <p align="center">
-  <img src="sa.png" alt="Samhita System Architecture" width="100%">
+  <img src="samhita sa.png" alt="Samhita System Architecture" width="100%">
 </p>
 
 <p align="center">
